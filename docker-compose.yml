@@ -1,8 +1,25 @@
+version: "3.8"
+
 services:
+  db:
+    image: mysql
+    command: "--default-authentication-plugin=mysql_native_password"
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./database:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    environment:
+      - MYSQL_DATABASE=todo
+      - MYSQL_ROOT_PASSWORD=root
+
   backend:
     build:
       args:
-      - NODE_ENV=development
+        - NODE_ENV=development
       context: backend
     command: npm run start
     environment:
@@ -18,22 +35,9 @@ services:
       - ./backend/package.json:/code/package.json
       - ./backend/package-lock.json:/code/package-lock.json
       - back:/opt/app/node_modules
-    networks:
-      - public
-      - private
     depends_on:
-      - db
-  db:
-    image: mysql
-    command: '--default-authentication-plugin=mysql_native_password'
-    restart: always
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - private
-    environment:
-      - MYSQL_DATABASE=todo
-      - MYSQL_ROOT_PASSWORD=root
+      db:
+        condition: service_healthy
   frontend:
     build:
       context: frontend
@@ -42,11 +46,20 @@ services:
     volumes:
       - ./frontend/src:/code/src
       - /code/node_modules
-    networks:
-      - public
     depends_on:
       - backend
-
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+    ports:
+      - 8081:80
 networks:
   public:
   private:

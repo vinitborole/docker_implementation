@@ -11,21 +11,6 @@ const db = mysql.createConnection({
   database: process.env.DATABASE_DB,
 });
 
-// init db tables
-// dirty approach we must use migrations for this
-
-db.query(
-  `CREATE TABLE IF NOT EXISTS todo (
-    id int(11) NOT NULL AUTO_INCREMENT,
-    title varchar(50) NOT NULL,
-    completed boolean NOT NULL,
-    PRIMARY KEY (id)
-  ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=latin1;`,
-  function (err, result) {
-    if (err) console.log("unable to init db tables");
-  }
-);
-
 // Enable cors security headers
 app.use(cors());
 
@@ -35,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // home page
 app.get("/", (req, res) => {
-  console.log(db);
+  // console.log(db);
   res.send(`Hello World`);
 });
 
@@ -49,9 +34,10 @@ app.get("/get", (req, res) => {
 // add a book to the database
 app.post("/insert", (req, res) => {
   const title = req.body.title;
-  const InsertQuery = "INSERT INTO todo (title) VALUES (?)";
+  const InsertQuery = "INSERT INTO todo (title,completed) VALUES (?,false)";
   db.query(InsertQuery, [title], (err, result) => {
-    console.log(result);
+    if (err) console.log(err);
+    if (result) res.send({ status: true });
   });
 });
 
@@ -61,6 +47,7 @@ app.delete("/delete/:id", (req, res) => {
   const DeleteQuery = "DELETE FROM todo WHERE id = ?";
   db.query(DeleteQuery, id, (err, result) => {
     if (err) console.log(err);
+    if (result) res.send({ status: true });
   });
 });
 

@@ -7,7 +7,11 @@ Application is under frequent development and currently used for dev envirnonmen
 
 
 ### ROADMAP
-1. Setup containerised architecture
-2. Setup backend with CRUD operations 
-3. Use Internal backend for react application 
+1. Setup containerised architecture - DONE
+2. Setup backend with CRUD operations - DONE
+3. Use Internal backend for react application - DONE
 4. Implement redux for application 
+
+
+### USAGE
+
