@@ -32,6 +32,7 @@ export const TaskPage = () => {
           </div>
           <div>
             <h2>How to use? </h2>
+             host: {process.env.DATABASE_HOST}
             <ul>
               <li>
                 For the sake of simplicity we are pulling todo list from{" "}

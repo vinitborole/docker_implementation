@@ -1,0 +1,55 @@
+services:
+  backend:
+    build:
+      args:
+      - NODE_ENV=development
+      context: backend
+    command: npm run start
+    environment:
+      - DATABASE_DB=todo
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=root
+      - DATABASE_HOST=db
+      - NODE_ENV=development
+    ports:
+      - 3001:3001
+    volumes:
+      - ./backend/src:/code/src:ro
+      - ./backend/package.json:/code/package.json
+      - ./backend/package-lock.json:/code/package-lock.json
+      - back:/opt/app/node_modules
+    networks:
+      - public
+      - private
+    depends_on:
+      - db
+  db:
+    image: mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    restart: always
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - private
+    environment:
+      - MYSQL_DATABASE=todo
+      - MYSQL_ROOT_PASSWORD=root
+  frontend:
+    build:
+      context: frontend
+    ports:
+      - 80:3000
+    volumes:
+      - ./frontend/src:/code/src
+      - /code/node_modules
+    networks:
+      - public
+    depends_on:
+      - backend
+
+networks:
+  public:
+  private:
+volumes:
+  back:
+  db-data:
